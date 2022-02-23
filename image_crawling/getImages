@@ -29,5 +29,5 @@ for im in images:
 # Output the dictionary to a file
 out = open("singleOutput.txt", "w")
 for key, value in imgDict.items():
-    out.write(key + ": " + value + "\n")
+    out.write(str(key) + ": " + str(value) + "\n")
 out.close()
