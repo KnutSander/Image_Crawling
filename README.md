@@ -6,4 +6,4 @@ Below is a list of the different folders, and what they contain.
 My first attempt at web crawling, specifically crawling to find image links.
 
 ## Topic Searching
-EXPLAIN IT WHEN DONE
+Divides pictures from sports articles from The Independent into what type of sport it is
