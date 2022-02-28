@@ -37,8 +37,6 @@ class ImageCrawlAndLabel:
 
     # Gets the images from the soup and labels them based on the url
     def getImages(self, url, soup):
-        # Label the images based on their alt text or maybe article title, both?
-
         # Get the type of sport from the url by trimming it
         # Remove the base url, split on / character
         baseRemoved = url.replace(self.baseUrl, '')
@@ -57,13 +55,19 @@ class ImageCrawlAndLabel:
         # Loop to put the image links into the dictonary
         for im in images:
             src = im.get('src')
+            alt = im.get('alt')
             # Make sure src link is a valid link
             if src and src.startswith("https"):
+                # Create tuple object to store alt text and link
+                item = (alt, src)
+                # Create new dictionary key if it doesn't exist, append if it already exsist
                 if sportType in self.imageLinks:
-                    self.imageLinks[sportType].append(src)
+                    self.imageLinks[sportType].append(item)
                 else:
-                    self.imageLinks[sportType] = [src]
-    
+                    self.imageLinks[sportType] = [item]
+
+
+    # Gets links from the given soup and adds them to the list of links to explore
     def getRelatedLinks(self, soup):
         # Extracts every link in the soup
         links = soup.find_all('a')
@@ -99,7 +103,7 @@ class ImageCrawlAndLabel:
 
         # Set depth to limit crawl depth
         count = 0
-        depth = 10
+        depth = 50
         
         # Main loop, ends either when the list of urls is empty
         # or when the count reaches the depth
@@ -137,42 +141,12 @@ class ImageCrawlAndLabel:
                 f.write(sport + "\n")
 
                 # Iterate through the image links
-                for link in images:
-                    f.write(link + "\n")
+                for item in images:
+                    f.write(str(item[0])+ "," + item[1] + "\n")
 
                 # Add space after the sport is finished
                 f.write("\n")
-            
 
-    def testing(self):
-        # csv header
-        fieldnames = ['name', 'area', 'country_code2', 'country_code3']
-
-        # csv data
-        rows = [
-            {'name': 'Albania',
-             'area': 28748,
-             'country_code2': 'AL',
-             'country_code3': 'ALB'},
-            {'name': 'Algeria',
-             'area': 2381741,
-             'country_code2': 'DZ',
-             'country_code3': 'DZA'},
-            {'name': 'American Samoa',
-             'area': 199,
-             'country_code2': 'AS',
-             'country_code3': 'ASM'}
-        ]
-
-        with open('countries.csv', 'w', encoding='UTF8', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(rows)
-
-
-# Disregard pictures on the base page
-# Extract the content div only, with id frameInner
-        
 #-------------------------------------------------------------------------------
 # Code execution.
 #-------------------------------------------------------------------------------
