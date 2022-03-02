@@ -7,3 +7,6 @@ My first attempt at web crawling, specifically crawling to find image links.
 
 ## Topic Searching
 Divides pictures from sports articles from The Independent into what type of sport it is
+
+## Image Labeling
+Labels images from The Independent based on the most common word in the article, after processing the text using Elasticsearch.
