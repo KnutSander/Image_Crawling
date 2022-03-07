@@ -1,0 +1,103 @@
+#!usr/bin/env python3
+
+"""
+Opens webpages and extracts image links from them.
+Then labels tham using the most common words in the article.
+"""
+
+#-------------------------------------------------------------------------------
+# Imports and Global Variables
+#-------------------------------------------------------------------------------
+
+# Standard imports
+import sys, requests, validators, time, csv
+
+# BeautifulSoup, html handling
+from bs4 import BeautifulSoup as bs
+
+# Elasticsearch, content analysis
+from elasticsearch import Elasticsearch
+
+# Define the custom analyser and mapping for the text content
+body = {
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "content_anal": {
+          "type": "custom",
+          "tokenizer": "lowercase",
+          "filter": [
+            "stop"
+          ]
+        }
+      }
+    }
+  }, 
+  "mappings": {
+    "content": {
+      "properties": {
+        "content": {
+          "type": "text",
+          "analyzer": "content_anal",
+          "fielddata": "true",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        }
+      }   
+    }
+  }
+}
+
+# The search that gets the most common words
+search = {
+  "query": {
+    "match_all": {}
+  },
+  "aggs": {
+    "content": {
+      "terms": {
+        "field": "content"
+      }
+    }
+  }
+}
+
+#-------------------------------------------------------------------------------
+# Class and Routines
+#-------------------------------------------------------------------------------
+
+# Class that labels images
+class ImageLabeler:
+
+    def __init__(self):
+        # Initalise elasticsearch
+        self.elastic = Elasticsearch("http://localhost:9200")
+        self.elastic.indices.create("articles", body) 
+    
+                                  
+#-------------------------------------------------------------------------------
+# Main Program
+#-------------------------------------------------------------------------------
+
+# Open link file and import it's data
+with open('links.csv', 'r') as f:
+    reader = csv.reader(f)
+    nested_links = list(reader)
+    links = []
+    for list_link in nested_links:
+        for link in list_link:
+            links.append(link)
+
+# Send links to the class
+# Go through every link, extracting image link and article content "<p>"
+# Create a json that can be posted to Elasticsearch and return the common words
+# Use the words to label the picture
+# Save the picture link and word/words labeling it to a csv file
+
+#-------------------------------------------------------------------------------
+# End of image_labeler.py
+#-------------------------------------------------------------------------------

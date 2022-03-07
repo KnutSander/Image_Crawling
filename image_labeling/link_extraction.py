@@ -10,7 +10,7 @@ The link category can be specified by altering
 #-------------------------------------------------------------------------------
 
 # Standard imports
-import sys, requests, validators, time, csv
+import requests, time, csv
 
 # BeautifulSoup
 from bs4 import BeautifulSoup as bs
