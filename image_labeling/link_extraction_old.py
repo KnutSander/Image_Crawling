@@ -25,10 +25,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 # Webdriver Manager
 from webdriver_manager.firefox import GeckoDriverManager
 
-#-------------------------------------------------------------------------------
-# Class and Routines
-#-------------------------------------------------------------------------------
-
+# Main url
+main_url = "https://www.independent.co.uk/archive"
 
 
 #-------------------------------------------------------------------------------
