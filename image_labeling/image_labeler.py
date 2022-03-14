@@ -28,7 +28,6 @@ body = {
           "tokenizer": "lowercase",
           "filter": [
            "stop",
-           "stemmer"
           ]
         }
       }
@@ -85,6 +84,7 @@ class ImageLabeler:
         "Initialises the class variables"
         # Initalise elasticsearch
         self.elastic = Elasticsearch("http://localhost:9200")
+        self.elastic.indices.delete("articles")
         self.elastic.indices.create("articles", body)
 
         # The links to explore
@@ -188,7 +188,7 @@ class ImageLabeler:
             for topic, data in self.img_data.items():
                 writer.writerow([topic])
                 writer.writerow(fieldnames)
-                writer.writerow(data)
+                writer.writerows(data)
                 writer.writerow([""])
             
 
@@ -206,7 +206,11 @@ class ImageLabeler:
             data = self.format_text(text)
             terms = self.analyse_data(data)
 
-            self.img_data[depth] = [terms, images, "", url]
+            if "test" in self.img_data:
+                self.img_data["test"].append([terms, images, "", url])
+            else:
+                self.img_data["test"] = [[terms, images, "", url]]
+
             depth += 1
 
         self.output_result()

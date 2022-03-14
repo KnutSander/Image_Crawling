@@ -20,7 +20,8 @@ start_url = "https://www.independent.co.uk/archive"
 base_url = "https://www.independent.co.uk"
 
 # Topics to be found
-topics = ["news/science", "tech/", "life-style/gadgets-and-tech"]
+topics = ["/news/science", "/tech/", "/life-style/gadgets-and-tech/", +
+          "/gadgets-tech/"]
 
 #-------------------------------------------------------------------------------
 # Class and Routines
