@@ -27,7 +27,8 @@ body = {
           "type": "custom",
           "tokenizer": "lowercase",
           "filter": [
-            "stop"
+           "stop",
+           "stemmer"
           ]
         }
       }
@@ -80,8 +81,8 @@ delete = {
 # Class that labels images
 class ImageLabeler:
 
-    # Initialises the class variables
     def __init__(self, urls):
+        "Initialises the class variables"
         # Initalise elasticsearch
         self.elastic = Elasticsearch("http://localhost:9200")
         self.elastic.indices.create("articles", body)
@@ -89,16 +90,20 @@ class ImageLabeler:
         # The links to explore
         self.urls = urls
 
+        # The dictonary of all the pictures and related info
+        self.img_data = {}
 
-    # Gets the main content of the given page
+
     def get_content(self, url):
+        "Gets the main content of the given page"
         html = requests.get(url).text
         soup = bs(html, 'html.parser')
         return soup.find(id='frameInner')
 
 
-    # Gets the image urls from the webpage
     def get_images(self, soup):
+        "Gets all the image urls from the webpage"
+        
         # Get all images on the page
         all_images = soup.find_all(['img', 'amp-img'])
         
@@ -115,8 +120,9 @@ class ImageLabeler:
         return im_urls
             
 
-    # Gets the article text content from the webpage
     def get_text(self, soup):
+        "Gets the article text of from the webpage"
+        
         # Get all the text of the article
         p_tags = soup.find_all('p')
 
@@ -128,8 +134,8 @@ class ImageLabeler:
         return text
 
 
-    # Formats the input text to be uploaded to Elasticsearch
     def format_text(self, text):
+        "Formats the inout text to be uploaded to Elasticsearch"
         data = ''
 
         id_num = 1
@@ -142,10 +148,12 @@ class ImageLabeler:
         return data
             
         
-    
-    # Analyse the text to return the three most common words
-    # that will be used to describe the image
     def analyse_data(self, data):
+        """ 
+        Analyse the text to return the three most common 
+        words that will be used to describe the image.
+        """
+        
         # Delete the previous article content
         self.elastic.delete_by_query('articles', delete)
 
@@ -158,30 +166,51 @@ class ImageLabeler:
 
         # Get the three mosy common words from the aggregation
         for i in range(0, 3):
-            word =output['aggregations']['content']['buckets'][i]['key']
+            word = output['aggregations']['content']['buckets'][i]['key']
             aggs.append(word)
 
         return aggs
-        
 
 
-    # Main crawling method
+    def output_result(self):
+        "Outputs the result into a csv file"
+
+        # Define the field names
+        fieldnames = ['descriptors', 'image links', 'article name', 'article link']
+
+        # Open a cv file that will contain the results
+        with open('result.csv', 'w') as f:
+            
+            # Initalise csv writer
+            writer = csv.writer(f)
+
+            # Iterate through every topic in the dictonary
+            for topic, data in self.img_data.items():
+                writer.writerow([topic])
+                writer.writerow(fieldnames)
+                writer.writerow(data)
+                writer.writerow([""])
+            
+
     def crawl(self):
-        # Loop body
-        url = self.urls.pop(0)
-        soup = self.get_content(url)
+        "Main crawling method"
 
-        images = self.get_images(soup)
-        text = self.get_text(soup)
-        data = self.format_text(text)
-        terms = self.analyse_data(data)
-
-        print(str(terms) + ' ' + str(images))
-
+        depth = 0
         
-        
-    
-                                  
+        while depth < 10:
+            url = self.urls.pop(0)
+            soup = self.get_content(url)
+
+            images = self.get_images(soup)
+            text = self.get_text(soup)
+            data = self.format_text(text)
+            terms = self.analyse_data(data)
+
+            self.img_data[depth] = [terms, images, "", url]
+            depth += 1
+
+        self.output_result()
+                                
 #-------------------------------------------------------------------------------
 # Main Program
 #-------------------------------------------------------------------------------
@@ -197,12 +226,6 @@ with open('links.csv', 'r') as f:
             urls.append(url)
 
 ImageLabeler(urls).crawl()
-
-# Send links to the class
-# Go through every link, extracting image link and article content "<p>"
-# Create a json that can be posted to Elasticsearch and return the common words
-# Use the words to label the picture
-# Save the picture link and word/words labeling it to a csv file
 
 #-------------------------------------------------------------------------------
 # End of image_labeler.py
