@@ -92,6 +92,9 @@ base_url = "https://www.independent.co.uk"
 # Topics to be found
 topics = ["/news/science", "/tech/", "/life-style/gadgets-and-tech/"]
 
+# Max depth for searching for relevant links
+MAX_DEPTH = 15
+
 #-------------------------------------------------------------------------------
 # Classes and Methods
 #-------------------------------------------------------------------------------
@@ -118,6 +121,9 @@ class Independent_Crawler:
 
     def get_content(self, url):
         "Gets the main content of the given page"
+
+        # Retrieve page html, then turn it into soup and extract the frameInner
+        # frameInner is the main content of any page from The Independet
         html = requests.get(url).text
         soup = bs(html, 'html.parser')
         return soup.find(id='frameInner')
@@ -125,19 +131,29 @@ class Independent_Crawler:
 
     def get_links(self, soup):
         "Gets all links within a given soup"
+
+        # Retrieve the links form the soup
         link_objs = soup.find_all('a')
+
+        # All the urls on the archive page leads to different dates
+        # Add them all to the list after making them into valid links
         for obj in link_objs:
             self.date_urls.append(base_url + obj.get('href'))
 
 
     def get_rel_links(self, soup):
         "Gets links that are relevant to the defined topics"
+
+        # Retrieve the links from the soup
         link_objs = soup.find_all('a')
+        
         for obj in link_objs:
-                                
+
+            # Get the link
             href = obj.get('href')
 
-            # Check if the link is on a relevant topic
+            # Check if the link is relevant using the defined topics
+            # Also save what topic it belongs to
             link_relevant = False
             for topic in topics:
                 if topic in href:
@@ -149,7 +165,7 @@ class Independent_Crawler:
             if not link_relevant:
                 continue
 
-            # Link is relevant, add it to the list
+            # Link is relevant, add the topic and the link to the list
             self.rel_urls.append([topic, base_url + href])
 
 
@@ -158,15 +174,17 @@ class Independent_Crawler:
         
         # Get all images on the page
         all_images = soup.find_all(['img', 'amp-img'])
-        
-        # Remove images with links as a parent
-        # Removes article link images that have nothing to do with the images
-        # Place the relevant image links into a 
-        # Seems to work reasonably well
+
+        # List of image urls
         im_urls = []
+        
         for image in all_images:
+
+            # Images with links as parents link to other pages, so disregard them
             link_parent = image.find_parent('a')
             if link_parent == None:
+
+                # Make sure the src link is a valid web link
                 src = image.get('src')
                 if "http" in src:
                     im_urls.append(src)
@@ -185,6 +203,7 @@ class Independent_Crawler:
         for elem in p_tags:
             text.append(elem.get_text())
 
+        # Get the title to be used later
         title = soup.find('h1')
         title = title.get_text()
 
@@ -192,10 +211,14 @@ class Independent_Crawler:
 
 
     def format_text(self, text):
-        "Formats the inout text to be uploaded to Elasticsearch"
+        "Formats the inpout text to be uploaded to Elasticsearch"
+
+        # Empty string to hold the JSON data
         data = ''
 
+        # Id number incremented for every line
         id_num = 1
+        
         for line in text:
             index_id = {'index': {'_id': str(id_num)}}
             entry = {'content': line}
@@ -218,6 +241,7 @@ class Independent_Crawler:
         self.elastic.bulk(data, "articles", "content", refresh="wait_for")
 
         # Run the search and look at the aggregations
+        # Aggregations summarises data as metrics, statistics or other analytics
         output = self.elastic.search(search, "articles")
         aggs = []
 
@@ -243,9 +267,17 @@ class Independent_Crawler:
 
             # Iterate through every topic in the dictonary
             for topic, data in self.img_data.items():
+
+                # Start by writing the topic
                 writer.writerow([topic])
+
+                # Add the field names
                 writer.writerow(fieldnames)
+
+                # Write out every entry in the list of lists
                 writer.writerows(data)
+
+                # Blank line to seperate the different topics
                 writer.writerow([""])
 
 
@@ -256,34 +288,51 @@ class Independent_Crawler:
         main_soup = self.get_content(start_url)
         self.get_links(main_soup)
 
+        # Initialise depth to break the loop later
         depth = 0
 
-        # Start extracting relevant links
+        # Loop that extracts the links relevant to the topics
         while self.date_urls:
-            "Content getter loop"
+
+            # Get a url, then its soup and finally relevant links from it
             url = self.date_urls.pop(0)
             soup = self.get_content(url)
             self.get_rel_links(soup)
 
+            # Break when the given depth has been reached
             depth += 1
-            if depth == 10:
+            if depth == MAX_DEPTH:
                 break
             
             # Sleep to avoid aggressive crawling
             time.sleep(0.5)
             
-        
+        # Loop that labels the images using Elasticsearch
         while self.rel_urls:
-            "Image labeling loop"
+
+            # Grab the first item from rel_urls
             item = self.rel_urls.pop(0)
+
+            # First entry is the topic, second is the url
             topic, url = item[0], item[1]
+
+            # Get the soup
             soup = self.get_content(url)
 
+            # Extract the image links
             images = self.get_images(soup)
+
+            # Extract the article text content and tile
             text, title = self.get_text(soup)
+
+            # Format the data to be posted to Elasticsearch
             data = self.format_text(text)
+
+            # Post the data to Elasticsearch and get the three most common words
             terms = self.analyse_data(data)
 
+            # Append to the list if the key exists already
+            # Create and add the key if it does not exist
             if topic in self.img_data:
                 self.img_data[topic].append([terms, images, title, url])
             else:
@@ -292,6 +341,7 @@ class Independent_Crawler:
             # Sleep to avoid aggressive crawling
             time.sleep(0.5)
 
+        # Output the results
         self.output_result()
 
         
