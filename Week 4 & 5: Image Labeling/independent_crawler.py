@@ -218,7 +218,7 @@ class Independent_Crawler:
 
     
     def format_text(self, text):
-        "Formats the inpout text to be uploaded to Elasticsearch"
+        "Formats the input text to be uploaded to Elasticsearch"
 
         # Empty string to hold the JSON data
         data = ''
