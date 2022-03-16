@@ -90,7 +90,7 @@ start_url = "https://www.independent.co.uk/archive"
 base_url = "https://www.independent.co.uk"
 
 # Topics to be found
-topics = ["/news/science", "/tech/", "/life-style/gadgets-and-tech/"]
+topics = ["/news/uk", "news/world/americas"]
 
 # Max depth for searching for relevant links
 MAX_DEPTH = 15
@@ -98,6 +98,7 @@ MAX_DEPTH = 15
 #-------------------------------------------------------------------------------
 # Classes and Methods
 #-------------------------------------------------------------------------------
+
 
 class Independent_Crawler:
     "Main class that holds all the methods"
@@ -118,6 +119,7 @@ class Independent_Crawler:
         # The dictonary of all the pictures and related info
         self.img_data = {}
 
+        
 
     def get_content(self, url):
         "Gets the main content of the given page"
@@ -129,6 +131,7 @@ class Independent_Crawler:
         return soup.find(id='frameInner')
 
 
+    
     def get_links(self, soup):
         "Gets all links within a given soup"
 
@@ -141,6 +144,7 @@ class Independent_Crawler:
             self.date_urls.append(base_url + obj.get('href'))
 
 
+            
     def get_rel_links(self, soup):
         "Gets links that are relevant to the defined topics"
 
@@ -168,6 +172,7 @@ class Independent_Crawler:
             # Link is relevant, add the topic and the link to the list
             self.rel_urls.append([topic, base_url + href])
 
+            
 
     def get_images(self, soup):
         "Gets all the image urls from the webpage"
@@ -191,6 +196,7 @@ class Independent_Crawler:
 
         return im_urls
 
+    
 
     def get_text(self, soup):
         "Gets the article text and title of from the webpage"
@@ -210,6 +216,7 @@ class Independent_Crawler:
         return text, title
 
 
+    
     def format_text(self, text):
         "Formats the inpout text to be uploaded to Elasticsearch"
 
@@ -228,6 +235,7 @@ class Independent_Crawler:
         return data
 
 
+    
     def analyse_data(self, data):
         """ 
         Analyse the text to return the three most common 
@@ -253,6 +261,7 @@ class Independent_Crawler:
         return aggs
 
 
+    
     def output_result(self):
         "Outputs the result into a csv file"
 
@@ -260,7 +269,7 @@ class Independent_Crawler:
         fieldnames = ['descriptors', 'image links', 'article name', 'article link']
 
         # Open a cv file that will contain the results
-        with open('science_and_tech_result.csv', 'w') as f:
+        with open('uk_and_americas_news_result.csv', 'w') as f:
             
             # Initalise csv writer
             writer = csv.writer(f)
@@ -281,6 +290,7 @@ class Independent_Crawler:
                 writer.writerow([""])
 
 
+                
     def crawl(self):
         "Main crawling method"
         
@@ -343,6 +353,7 @@ class Independent_Crawler:
 
         # Output the results
         self.output_result()
+
 
         
 #-------------------------------------------------------------------------------
