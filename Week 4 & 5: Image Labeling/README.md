@@ -1,15 +1,18 @@
-# Image_Labeling
-The aim of this is to search through The Independent technology and science related news, and try to label the images in each article
-Here I will attempt to label images based on the most common word in the article, after formatting and processing it through Elasticsearch.
+# Image Labeling
+In week 4 and 5, the topic was changed into technlogy and science as too many people were working on sport related content. The use of Elasticsearch to label the images was fairly successful, and provided a basis of which to continue to build on.
 
-## Link_Extraction
-Extracts links from the independent archive related to the given topics.
+The resulting products were the following:
+* *link_extraction_old,py* - A class that was abandoned as the use of Selenium was unnecessary.
+* *link_extraction.py* - A class that extracts links related to the given topic from The Independet archive until a given depth/number of days, then outputting them to a CSV file.
+* *image_labeler.py* - A class that extracts the links from the output of *link_extraction.py*, gets the images from the webpage and labels them given the three most common words in the article content, finally outputting it to a CSV file.
+* *independent_crawler.py* - A class that combines the functionality of the two previous files with subtile changes and additions to several methods, and an improved output where the image labels, image links, article text and article link are display and ordered based on their topic.
 
-## Image_Labeler
-Using the links from link_extraction.py, it explores the articles, gets the images and article text, and uses the most common words to label the picture.
-
-## Independent_Crawler
-Combines the two Python files mentioned above into one, as well as doing some improvments to the code.
-It searches for links relevant to the given topics, then extracts the articles images and text. 
-It then uses Elasticsearch and custom analyser to find the three most common words, and uses those to label the images.
-This is all nicely formatted and output into a CSV file.
+## Folder Contents
+* link_extraction_old.py
+* link_extraction.py
+* image_labeler.py
+* independent_crawler.py
+* links.csv
+* result.csv
+* science_and_tech_result.csv
+* README.md
