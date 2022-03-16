@@ -5,6 +5,14 @@ The work was undertaken in a 10 week period in colaboration with the Frontrunner
 All work is of my own creation, any code or concepts taken or adapted from anywhere is aknowledged.  
   
   
+  
+  
+  
+  
+  
+  
+  
+  
 ## Image Crawling
 Week 1 and 2 was a mixture of work and obligatory meetings, which is the reason there was little development done in the first two weeks. It was a also a period with a lot of exploring and understanding of several of the packages and concepts used for web crawling in Python.
 
