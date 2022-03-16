@@ -21,7 +21,7 @@ The resulting products were the following:
 * singleOutput.txt
 * output.txt
 * README.md
-
+</br>
 
 ## Topic Searching
 In week 3 the goal was to crawl a specific topic, the topic chosen being sports, then trying to label which sport the picture is of. Doing this on The Independet was relativly successful as most of there pages has the type of sport in the URL, so it was a simple operation of extracting it from there.
@@ -32,7 +32,7 @@ The resulting product was *sportPictureLabeling.py* a class that starts crawling
 * sportPictureLabeling.py
 * result.csv
 * README.md
-
+</br>
 
 ## Image Labeling
 In week 4 and 5, the topic was changed into technlogy and science as too many people were working on sport related content. The use of Elasticsearch to label the images was fairly successful, and provided a basis of which to continue to build on.
@@ -52,7 +52,7 @@ The resulting products were the following:
 * result.csv
 * science_and_tech_result.csv
 * README.md
-
+</br>
 
 ## Folder Name
 Text explaining briefly what was done in the week;
@@ -61,3 +61,4 @@ The resulting product/s:
 
 ### Folder Contents
 *
+</br>
