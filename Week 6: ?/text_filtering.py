@@ -18,9 +18,6 @@ from bs4 import BeautifulSoup as bs
 # Elasticsearch, content analysis
 from elasticsearch import Elasticsearch
 
-# Define the custom analyser and mapping for the text content
-body = {}
-
 # Match all query for getting all elements as well as deleting the content
 match_all = {
   "query": {
@@ -47,14 +44,29 @@ def extract_text(url):
 
     # Extract the 'frameInner', article main content
     soup = soup.find(id='frameInner')
+
+    # Extract the main content from the soup
+    main = soup.find(id='main')
         
     # Get all the text of the article
-    p_tags = soup.find_all('p')
+    p_tags = main.find_all('p')
 
-    # Remove the 'p' tags from the strings
+    # Remove the 'p' tags from the strings and add them to the list
     text = []
     for elem in p_tags:
         text.append(elem.get_text())
+
+    # Get the title as it has useful text as well
+    title = soup.find('h1')
+    title = title.get_text()
+
+    # Get the subtitle as well
+    sub = soup.find('h2')
+    sub = sub.get_text()
+
+    # Add title and subtitle to the text list
+    text.append(title)
+    text.append(sub)
 
     return text
 
@@ -92,6 +104,7 @@ def send_data(data):
     output = elastic.search(match_all, 'articles')
 
     print(output)
+
 
 #-------------------------------------------------------------------------------
 # Main Program
