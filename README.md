@@ -63,11 +63,13 @@ The output was also improved for better readability, and the speed of various op
 The resulting products were the following:
 * *text_filtering.py* - A class to test and improve the text ectracted from articles on The Independent.
 * *image_filtering.py* - A class to test and improve the image links extracted from articles on The Independet.
+* *operation_speed.py* - A class to test the operation speed of the methods implemented in *improved_independent_crawler.py*
 * *improved_independent_crawler.py* - An improved version of *independent_crawler.py* that implements the text and image extraction from the two classes above, as well as improving the output and performance of it's predecessor.
 
 ### Folder Contents
 * text_filtering.py
 * image_filtering.py
+* operation_speed.py
 * improved_independent_crawler.py
 * uk_and_americas_news_result.cvs
 * tech_and_science_result.csv
