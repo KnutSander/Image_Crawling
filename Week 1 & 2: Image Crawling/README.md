@@ -5,12 +5,3 @@ The resulting products were the following:
 * *beautifulSoup_test.py* - A test class to understand how Beautiful Soup works.
 * *getImages.py* - A class that takes a link as an argument, and outputs a list of images links and alternative text.
 * *iterativeGetImages.py* - A class that does what the class mentioned above does, as well as finding links on the given page and exploring connected pages iterativly until a given number of pages has been searched.
-
-## Folder Contents
-* beautifulSoup_test.py
-* getImages.py
-* iterativeGetImages.py
-* imageLinks.txt
-* singleOutput.txt
-* output.txt
-* README.md
