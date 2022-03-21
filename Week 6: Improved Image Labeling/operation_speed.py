@@ -1,48 +1,8 @@
 #!usr/bin/env python3
 
 """
-" A crawler built to be able to crawl any topics from The Independent website.
-"
-" It extracts images related to the given article, labels them with the most
-" common words used in the article, and saves it all in a CSV file.
-"
-" To do this, it starts the crawling on The Independent Archive website. From
-" here it extracts every url from the main content until a given depth.
-" The given depth is the MAX_DEPTH variable in the first section of the program, 
-" "Imports and Gobal variables", and relates to the number of dates going 
-" backwards from the current date it will extract urls. 
-" These urls link to seperate pages that contain links to every news article 
-" released the given date.
-"
-" On the date pages, the program again extracts every url, but filters out the
-" ones it deems not relevant. This is done by only storing the links that
-" are related to the topics in the "topics" list, defined in the first section
-" of the program.
-"
-" With the list of all the relevant links, the program does two things.
-" It extracts all images and it extracts the article text to label it.
-"
-" The images are extracted by finding every "img" object on the given page.
-" It only searches a specific area of the page for the images, and removes 
-" duplicate links to only store unique images.
-" The 'alt' of the image is also extracted to be used for labeling.
-"
-" The text is extracted by finding every "p" object on the given page.
-" It also extracts the first "h1" object and the first "h2" object, being the
-" article title and subtitle respectivly.
-" All of these strings are returned to be used for labeling.
-"
-" To label the images, the article content is posted to Elasticsearch.
-" The content is filtered to remove stopwords, and normalise the text before
-" querying it.
-" Using aggregations, the three most common words in the text are extracted
-" and are used to label the images.
-"
-" When the program has finished labeling all the images, it ouputs the info
-" into a CSV file.
-" The articles are sorted into their respective topics. Then it lists the three
-" words chosen for the article, the images extracted, the title of the article
-" and the link to the article.
+" A class to test the speed of which various methods used
+" in improved_independent_crawler.py takes.
 """
 
 #-------------------------------------------------------------------------------
@@ -374,93 +334,89 @@ class Independent_Crawler:
                 writer.writerow([""])
 
 
-                
-    def crawl(self):
-        "Main crawling method"
-        
-        # Get the links from the starting page
-        main_soup = self.get_content(start_url)
-        self.get_links(main_soup)
-
-        # Initialise depth to break the loop later
-        depth = 0
-
-        # Loop that extracts the links relevant to the topics
-        while self.date_urls:
-
-            # Get a url, then its soup and finally relevant links from it
-            url = self.date_urls.pop(0)
-            soup = self.get_content(url)
-            self.get_rel_links(soup)
-
-            # Break when the given depth has been reached
-            depth += 1
-            if depth == MAX_DEPTH:
-                break
-            
-            # Sleep to avoid aggressive crawling
-            time.sleep(0.5)
-            
-        # Loop that labels the images using Elasticsearch
-        while self.rel_urls:
-
-            # Grab the first item from rel_urls
-            item = self.rel_urls.pop(0)
-
-            # First entry is the topic, second is the url
-            topic, url = item[0], item[1]
-
-            # Get the soup
-            soup = self.get_content(url)
-
-            # Extract the image links
-            images, alt = self.get_images(soup)
-
-            # Extract the article text content and tile
-            text, title = self.get_text(soup)
-
-            # Combine the text and the alt
-            text = text + alt
-
-            # Format the data to be posted to Elasticsearch
-            data = self.format_text(text)
-
-            # Post the data to Elasticsearch and get the three most common words
-            terms = self.analyse_data(data)
-
-            # Append to the list if the key exists already
-            # Create and add the key if it does not exist
-            if topic in self.img_data:
-                self.img_data[topic].append([terms, images, title, url])
-            else:
-                self.img_data[topic] = [[terms, images, title, url]]
-
-            # Sleep to avoid aggressive crawling
-            time.sleep(0.5)
-
-        # Output the results
-        self.output_result()
-
-        
 #-------------------------------------------------------------------------------
 # Main Program
 #-------------------------------------------------------------------------------
 
-# Get the current
+# Initialise the class
+crawler = Independent_Crawler()
+
+# Measure the time it takes to extract links, used to get every date link
+# Takes on average 0.9 seconds from testing
 start = time.time()
 
-# Start crawling
-Independent_Crawler().crawl()
+soup = crawler.get_content(start_url)
+crawler.get_links(soup)
 
-# When the crawl has finished, display the time taken
 end = time.time()
 
-# Display the time taken
-print("Time taken to process and output " + str(MAX_DEPTH) + " " +
-      ("days " if MAX_DEPTH > 1 else "day ") + "was " + str(end-start))
+print("Time taken to extraxt date links was " + str(end-start) + " seconds.")
+
+# Measure the time it takes to extract relevant links from a date page
+# Takes on average 0.5 seconds from testing
+start = time.time()
+
+url = crawler.date_urls.pop(10)
+soup = crawler.get_content(url)
+crawler.get_rel_links(soup)
+
+end = time.time()
+
+print("Time taken to extract relevant links was " + str(end-start) +
+      " seconds.")
+
+# Prepare the content for the next operations
+item = crawler.rel_urls.pop(0)
+topic, url = item[0], item[1]
+soup = crawler.get_content(url)
+
+# Measure the time taken to extract the image links from an article
+# Takes on average 0.002 seconds from testing
+start = time.time()
+
+images, alt = crawler.get_images(soup)
+
+end = time.time()
+
+print("Time taken to extract image links was " + str(end-start) +
+      " seconds.")
+
+# Measure time taken to extract the article content
+# Takes on average 0.003 seconds on average
+start = time.time()
+
+text, title = crawler.get_text(soup)
+
+end = time.time()
+
+print("Time taken to extract the text was " + str(end-start) + " seconds.")
+
+# Measure time taken to format the text
+# Takes on average 0.002 seconds on average
+text = text + alt
+
+start = time.time()
+
+data = crawler.format_text(text)
+
+end = time.time()
+
+print("Time taken to format the text was " + str(end-start) + " seconds.")
+
+# Measure time taken to analyse the text and get the image labels
+# Takes on average 0.7 seconds on average
+start = time.time()
+
+terms = crawler.analyse_data(data)
+
+end = time.time()
+
+print("Time taken to analyse the data and return the terms was "
+      + str(end-start) + " seconds.")
+
+# If operations were run in this order for every link, it would take the program
+# on average 2.5 seconds to extract and label the images
 
 #-------------------------------------------------------------------------------
-# End of independent_crawler.py
+# End of operation_speed.py
 #-------------------------------------------------------------------------------
-
-
