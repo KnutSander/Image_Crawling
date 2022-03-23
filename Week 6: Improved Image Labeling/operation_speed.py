@@ -348,22 +348,21 @@ start = time.time()
 soup = crawler.get_content(start_url)
 crawler.get_links(soup)
 
-end = time.time()
+#end = time.time()
 
-print("Time taken to extraxt date links was " + str(end-start) + " seconds.")
+#print("Time taken to extraxt date links was " + str(end-start) + " seconds.")
 
 # Measure the time it takes to extract relevant links from a date page
 # Takes on average 0.5 seconds from testing
-start = time.time()
+#start = time.time()
 
 url = crawler.date_urls.pop(10)
 soup = crawler.get_content(url)
 crawler.get_rel_links(soup)
 
-end = time.time()
+#end = time.time()
 
-print("Time taken to extract relevant links was " + str(end-start) +
-      " seconds.")
+#print("Time taken to extract relevant links was " + str(end-start) + " seconds.")
 
 # Prepare the content for the next operations
 item = crawler.rel_urls.pop(0)
@@ -372,40 +371,39 @@ soup = crawler.get_content(url)
 
 # Measure the time taken to extract the image links from an article
 # Takes on average 0.002 seconds from testing
-start = time.time()
+#start = time.time()
 
 images, alt = crawler.get_images(soup)
 
-end = time.time()
+#end = time.time()
 
-print("Time taken to extract image links was " + str(end-start) +
-      " seconds.")
+#print("Time taken to extract image links was " + str(end-start) + " seconds.")
 
 # Measure time taken to extract the article content
 # Takes on average 0.003 seconds on average
-start = time.time()
+#start = time.time()
 
 text, title = crawler.get_text(soup)
 
-end = time.time()
+#end = time.time()
 
-print("Time taken to extract the text was " + str(end-start) + " seconds.")
+#print("Time taken to extract the text was " + str(end-start) + " seconds.")
 
 # Measure time taken to format the text
 # Takes on average 0.002 seconds on average
 text = text + alt
 
-start = time.time()
+#start = time.time()
 
 data = crawler.format_text(text)
 
-end = time.time()
+#end = time.time()
 
 print("Time taken to format the text was " + str(end-start) + " seconds.")
 
 # Measure time taken to analyse the text and get the image labels
 # Takes on average 0.7 seconds on average
-start = time.time()
+#start = time.time()
 
 terms = crawler.analyse_data(data)
 
@@ -416,6 +414,7 @@ print("Time taken to analyse the data and return the terms was "
 
 # If operations were run in this order for every link, it would take the program
 # on average 2.5 seconds to extract and label the images
+
 
 #-------------------------------------------------------------------------------
 # End of operation_speed.py

@@ -132,7 +132,7 @@ base_url = "https://www.independent.co.uk"
 topics = ["/tech/", "/life-style/gadgets-and-tech/", "/news/science/"]
 
 # Max depth for searching for relevant links
-MAX_DEPTH = 3
+MAX_DEPTH = 15
 
 #-------------------------------------------------------------------------------
 # Classes and Methods
