@@ -1,7 +1,7 @@
 # Web Crawling Work
 This is a repository of web crawling work undertaken while working with Dr. Shoaib Jameel and Senior Data Scientist Mozhgan Talebpour.
 The main aim of the work is to try to use web crawling to get images and label them. To achieve this, several different approaches was tested, all of which are explained below.
-The work was undertaken in a 10 week period in colaboration with the Frontrunners program at the University of Essex,
+The work was undertaken in a 7 week period in colaboration with the Frontrunners program at the University of Essex,
 All work is of my own creation, any code or concepts taken or adapted from anywhere is aknowledged.  
 </br>
   
